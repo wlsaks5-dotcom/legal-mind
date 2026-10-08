@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>법률 3단 브릿지 학습기</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f6fa;
+            color: #333;
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            font-size: 1.3rem;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        header p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+        .sample-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .sample-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.8rem;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .sample-btn:active {
+            background: #cbd5e1;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: none;
+            margin-bottom: 12px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .action-btn:active {
+            background: #1d4ed8;
+        }
+        .result-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .step-box {
+            background: #ffffff;
+            border-left: 4px solid #2563eb;
+            padding: 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .step-box:nth-child(2) { border-left-color: #10b981; }
+        .step-box:nth-child(3) { border-left-color: #f59e0b; }
+        .step-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        .step-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>법률 3단 브릿지</h1>
+        <p>비전공 수험생을 위한 법조문 직관 해석기</p>
+    </header>
+
+    <div class="card">
+        <div class="sample-buttons">
+            <button class="sample-btn" onclick="loadSample(1)">민법 샘플 (선의의 제삼자)</button>
+            <button class="sample-btn" onclick="loadSample(2)">행정법 샘플 (신뢰보호원칙)</button>
+        </div>
+        <textarea id="lawInput" placeholder="공부하다 막히는 법조문이나 판례를 입력하거나 사진을 스캔하세요..."></textarea>
+        <button class="action-btn" onclick="analyzeLaw()">분석 및 3단 변환 시작</button>
+    </div>
+
+    <div id="resultContainer" class="result-container">
+        <div class="step-box">
+            <div class="step-title">STEP 1. 일상 비유 (직관적 이해)</div>
+            <div id="step1Text" class="step-content"></div>
+        </div>
+        <div class="step-box">
+            <div class="step-title">STEP 2. 법률 용어 해체 (용어 장벽 제거)</div>
+            <div id="step2Text" class="step-content"></div>
+        </div>
+        <div class="step-box">
+            <div class="step-title">STEP 3. 수험 적합성 매핑 (기출 포인트)</div>
+            <div id="step3Text" class="step-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const samples = {
+            1: {
+                text: "제107조 (진의 아닌 의사표시는 표의자가 진의 아님을 알고 한 것이라도 그 효력이 있다. 그러나 상대방이 표의자의 진의 아님을 알았거나 이를 알 수 있었을 경우에는 무효로 한다.)",
+                step1: "내가 속으로는 '장난감 안 팔 거야'라고 생각하면서 친구에게 '이거 가져라'고 거짓으로 건넸을 때, 친구가 진짜 주는 줄 알았다면 약속은 유효합니다. 하지만 친구가 내 속마음을 알았거나 뻔히 알 수 있었다면 그 거래는 무효가 됩니다.",
+                step2: "• 표의자: 의사표시를 하는 사람(나)<br>• 진의: 마음에 품고 있는 진짜 생각<br>• 선의: 상대방의 속마음을 몰랐던 상태",
+                step3: "<b>[기출 포인트]</b> 진의 아닌 의사표시는 원칙적으로 유효(표시주의)이나, 상대방의 악의·과실이 예외적으로 무효 사유가 된다는 점이 핵심 지문으로 출제됩니다."
+            },
+            2: {
+                text: "행정청의 공적인 견해표명이 정당하다고 신뢰한데 대하여 귀책사유가 없는 자의 보호",
+                step2Text: "관공서(행정청)가 세금 감면 등의 약속을 믿고 투자했는데, 나중에 관공서가 말을 바꿨을 때 국민을 보호하는 원칙입니다.",
+                step2: "• 견해표명: 국가나 관공서가 공식적으로 입장을 밝히는 것<br>• 귀책사유: 내게 잘못이나 책임이 있는 사유",
+                step3: "<b>[기출 포인트]</b> 신뢰보호원칙의 요건 5가지(공적 견해표명, 신뢰의 보호가치, 선의·무과실 등)는 사례형과 객관식 양쪽의 단골 출제 주제입니다."
+            }
+        };
+
+        function loadSample(type) {
+            document.getElementById('lawInput').value = samples[type].text;
+        }
+
+        function analyzeLaw() {
+            const input = document.getElementById('lawInput').value.trim();
+            if(!input) {
+                alert('법 조문이나 판례를 입력하거나 샘플을 선택해주세요.');
+                return;
+            }
+            
+            // 시뮬레이션용 매핑 (실제 서비스에서는 LLM API 연동)
+            let data = samples[1];
+            if(input.includes('행정청')) {
+                data = samples[2];
+            }
+
+            document.getElementById('step1Text').innerHTML = data.step1;
+            document.getElementById('step2Text').innerHTML = data.step2;
+            document.getElementById('step3Text').innerHTML = data.step3;
+            
+            document.getElementById('resultContainer').style.display = 'block';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
